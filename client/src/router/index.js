@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/Home.vue'
 import LeaderBoard from '../views/LeaderBoard.vue'
+import Account from '@/views/Account.vue'
+import Bag from '@/views/Bag.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,6 +13,8 @@ const router = createRouter({
       component: HomeView
     },
     { path: '/leaderboard', name: 'leaderboard', component: LeaderBoard },
+    { path: '/account', name: 'account', component: Account },
+    { path: '/bag', name: 'bag', component: Bag },
     {
       path: '/about',
       name: 'about',

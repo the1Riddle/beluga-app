@@ -1,42 +1,103 @@
 <template>
-  <div class="banana-game">
-    <div class="header">
-      <h2>BANANA</h2>
-      <button class="harvest-btn" :disabled="remainingHarvest === 0" @click="harvest">
-        Harvest
-      </button>
-    </div>
-    <div class="status">
-      <div class="peels-count">
-        <span>Peels</span>
-        <h3>{{ peelsCount }}</h3>
-      </div>
-      <div class="banana-counter">
-        <div class="progress" :style="{ width: `${(bananaCount/360) * 100}%` }"></div>
-        <div class="counter-image">
-          <img
-            src="@/assets/logo.svg"
-            alt="Banana"
-            @contextmenu.prevent="handleTouch"
-            @touchstart="handleTouch"
-          />
+  <div class="card">
+        <div class="rounded-pill income-header">
+            <p class="pill_content">INCOME:</p>
+            <div class="coins">
+                <span class="material-symbols-outlined">paid</span> <p class="pill_content">{{ peelsCount }}</p>
+            </div>
         </div>
-        <p>{{ bananaCount }}/360</p>
-      </div>
+
+        <div class="circular-progress-container">
+          <svg class="progress-circle" viewBox="0 0 36 36">
+            <!-- Background Circle -->
+            <path
+              class="circle-bg"
+              d="M18 2.0845
+                a 15.9155 15.9155 0 0 1 0 31.831
+                a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+            <!-- Progress Circle -->
+            <path
+              class="circle"
+              :stroke-dasharray="`${(touchCount / 60) * 100}, 100`"
+              d="M18 2.0845
+                a 15.9155 15.9155 0 0 1 0 31.831
+                a 15.9155 15.9155 0 0 1 0 -31.831"
+            />
+            <!-- Image Container -->
+            <foreignObject x="3.5" y="3.5" width="29" height="29">
+              <div class="circular-image">
+                <img src="../assets/logo.svg" alt="Whale Image"
+                  @click.prevent="handleTouch"
+                  @touchstart="handleTouch"
+                />
+              </div>
+            </foreignObject>
+          </svg>
+        </div>
+
+        <div class="timer-contents">
+            <div class="rounded-end-circle">
+                <div class="nav-buttons">
+                    <button>
+                        <span class="material-symbols-outlined">business_center</span>
+                        <p>Bag</p>
+                    </button>
+                </div>
+            </div>
+            <div v-if="touchCount <= 59" class="timer">
+                <ul class="nav nav-fill gap-2 p-1 small rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-gray); --bs-nav-pills-link-active-color: var(--bs-white); --bs-nav-pills-link-active-bg: var(--bs-blue); background: white;">
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-5" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true">
+                      <strong>Tab to Claim</strong>
+                    </button>
+                    </li>
+                </ul>
+            </div>
+            <div v-if="touchCount == 60 && this.remainingClaims > 0" class="claim-section">
+                <button :style="claim_button" @click="claimBanana">
+                    Claim x1 Coin
+                </button>
+            </div>
+
+            <div v-if="nextClaimIn" class="timer">
+                <p class="fw-bolder">Claim your Reward in:</p>
+                <ul class="nav nav-fill gap-2 p-1 small rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-gray); --bs-nav-pills-link-active-color: var(--bs-white); --bs-nav-pills-link-active-bg: var(--bs-blue); background: white;">
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-5" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true">
+                      <strong>{{ nextClaimIn }}</strong>
+                    </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="rounded-start-circle text-center">
+                <div class="nav-buttons">
+                    <button>
+                        <span class="material-symbols-outlined">chat</span>
+                        <p>Franz</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="nav section nav-pills nav-fill gap-2 p-1 small rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-gray); --bs-nav-pills-link-active-color: var(--bs-white); --bs-nav-pills-link-active-bg: var(--bs-blue); background: white;">
+                <button class="nav-link active rounded-5" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true">
+                    <span class="material-symbols-outlined">home</span>
+                    <p>Home</p>
+                </button>
+                <button class="nav-link rounded-5" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                    <span class="material-symbols-outlined">account_balance_wallet</span>
+                    <p>Wallet</p>
+                </button>
+                <button class="nav-link rounded-5" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                    <span class="material-symbols-outlined">rewarded_ads</span>
+                    <p>Ranking</p>
+                </button>
+                <button class="nav-link rounded-5" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">
+                    <span class="material-symbols-outlined">account_circle</span>
+                    <p>My</p>
+                </button>
+        </div>
     </div>
-    <div class="claim-section">
-      <button :style="claim_button" :disabled="touchCount < 60 || remainingClaims <= 0" @click="claimBanana">
-        Claim x1 Banana
-      </button>
-      <p v-if="nextClaimIn">{{ nextClaimIn }}</p>
-    </div>
-    <div class="leaderboard">
-      <h3>Top Harvesters</h3>
-      <ol>
-        <li v-for="user in leaderboard" :key="user.id">{{ user.name }} - {{ user.harvests }}</li>
-      </ol>
-    </div>
-  </div>
 </template>
 
 <script>
@@ -45,8 +106,7 @@ export default {
     return {
       peelsCount: 360,
       bananaCount: 0,
-      remainingHarvest: 0,
-      touchCount: 20,
+      touchCount: 0,
       remainingClaims: 4,
       nextClaimIn: null,
       leaderboard: [
@@ -79,6 +139,9 @@ export default {
       }
       if (this.touchCount === 60) {
         this.remainingClaims--;
+        if (this.remainingClaims === 0) {
+          this.startClaimTimer();
+        }
       }
     },
     claimBanana() {
@@ -86,7 +149,9 @@ export default {
         this.bananaCount++;
         this.peelsCount++;
         this.touchCount = 0;
-        this.startClaimTimer();
+        if (this.remainingClaims === 0) {
+          this.startClaimTimer();
+        }
       }
     },
     startClaimTimer() {
@@ -113,61 +178,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.banana-game {
-  background-color: #ffe135;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  text-align: center;
-  color: #767879;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.harvest-btn {
-  background-color: #af69ff;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 20px;
-}
-.claim-btn {
-  background-color: #af69ff;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 20px;
-}
-.status {
-  margin-top: 20px;
-}
-.peels-count h3 {
-  color: #af69ff;
-}
-.banana-counter {
-  position: relative;
-  margin-top: 20px;
-}
-.progress {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background-color: #af69ff;
-}
-img {
-  width: 100px;
-}
-.counter-image :hover {
-  cursor: pointer;
-}
-.claim-section {
-  margin-top: 20px;
-}
-.leaderboard {
-  margin-top: 20px;
-}
-</style>
+<style></style>
